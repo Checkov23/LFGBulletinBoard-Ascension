@@ -1,8 +1,8 @@
 ## Interface: 30300
-## Title: LFG Bulletin Board
-## Notes: Sort LFG/LFM Messages - based on LFG Bulletin Board 2.64, ported to the 3.3.5a client (Ascension)
-## Version: 1.07
-## Author: Vyscî-Whitemane
+## Title: LFG Bulletin Board (Checkov Fork)
+## Notes: Sort LFG/LFM Messages - Checkov fork of LFG Bulletin Board 2.64, ported to the 3.3.5a client (Ascension)
+## Version: 1.08
+## Author: Vyscî-Whitemane, fork by Checkov
 ## DefaultState: enabled
 ## SavedVariables: GroupBulletinBoardDB
 ## SavedVariablesPerCharacter: GroupBulletinBoardDBChar

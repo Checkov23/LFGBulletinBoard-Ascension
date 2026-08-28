@@ -1,7 +1,9 @@
-# LFG Bulletin Board for WoW 3.3.5a (Project Ascension)
+# LFG Bulletin Board (Checkov Fork)
 
-A port of **LFG Bulletin Board 2.64** to the old **WotLK 3.3.5a client (Interface 30300)**,
+A fork of **LFG Bulletin Board 2.64** for the old **WotLK 3.3.5a client (Interface 30300)**,
 with extra content categories for Project Ascension's **Conquest of Azeroth** game mode.
+
+Maintained by Checkov. Not affiliated with the original authors or with Project Ascension.
 
 The addon watches your chat channels for group requests, sorts them by instance and shows
 them in its own window. Left click whispers the poster, Shift + left click runs `/who`,
@@ -255,6 +257,8 @@ against a newer upstream release.
 ## Credits and licence
 
 Original addon: **LFG Bulletin Board** by Vyscî-Whitemane, building on Group Bulletin Board.
+This fork is maintained by Checkov and carries the fork name in its title so it cannot be
+confused with the upstream addon.
 Copyright (c) 2019 GPI, BSD 3-Clause. The original [LICENSE.txt](LFGBulletinBoard/LICENSE.txt)
 is kept unchanged and applies to this port as well.
 

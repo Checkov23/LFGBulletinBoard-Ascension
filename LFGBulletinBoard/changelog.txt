@@ -2,6 +2,14 @@
 
 Group Bulletin Board 	
 
+1.08
+- Renamed to "LFG Bulletin Board (Checkov Fork)" so it is distinguishable from
+  the upstream addon. The name shows in the AddOns list, in the window title
+  and in the options About panel. Author field now reads
+  "Vyscî-Whitemane, fork by Checkov": the original attribution stays, which is
+  what the BSD licence requires, and the fork is named on top of it.
+  The folder name stays LFGBulletinBoard because it has to match the .toc.
+
 1.07
 - Addon to addon traffic no longer reaches the board. 3.3.5a cannot send addon
   messages over a chat channel, so addons that want a server wide bus post
