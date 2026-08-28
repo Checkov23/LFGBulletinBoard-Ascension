@@ -70,11 +70,41 @@ end
 
 -- Supply the display names. GetDungeonNames builds its table at startup, so
 -- wrap it rather than replace it.
+--
+-- The names have to land in TWO places. The returned table is what the board
+-- draws, but the localisation panel reads the English fallback behind it
+-- (getmetatable(GBB.dungeonNames).__index) and concatenates the value without
+-- a nil check. A key that exists in the dungeon list but not in that fallback
+-- takes the whole options panel down with it.
 local GetDungeonNames_orig=GBB.GetDungeonNames
 function GBB.GetDungeonNames()
 	local names=GetDungeonNames_orig()
+	local mt=getmetatable(names)
+	local fallback=mt and mt.__index
 	for key,label in pairs(GBB.CoADungeonDisplay) do
+		if type(fallback)=="table" and rawget(fallback,key)==nil then
+			fallback[key]=label
+		end
 		if rawget(names,key)==nil then names[key]=label end
 	end
 	return names
+end
+
+-- Keystones are posted as an item link, for example
+--   [Keystone: Scarlet Monastery - Library (11)] 1 slot heal
+-- The tokeniser turns the link prefix into the word "hitem", which upstream
+-- lists as a Trade keyword, so every keystone request would also show up under
+-- Trade. On CoA a keystone link is a group request, not a sale. Drop Trade for
+-- those, pin them to the Mythic+ category, and treat the link itself as enough
+-- to count as a request even when the poster writes no role word at all.
+local GetDungeons_orig=GBB.GetDungeons
+function GBB.GetDungeons(msg,name)
+	local dungeons,isGood,isBad,wordcount,isHeroic=GetDungeons_orig(msg,name)
+	if type(dungeons)=="table" and type(msg)=="string"
+		and string.find(string.lower(msg),"keystone",1,true) then
+		dungeons["TRADE"]=nil
+		dungeons["MPLUS"]=true
+		isGood=true
+	end
+	return dungeons,isGood,isBad,wordcount,isHeroic
 end

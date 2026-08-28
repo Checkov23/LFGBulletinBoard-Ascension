@@ -2,6 +2,24 @@
 
 Group Bulletin Board 	
 
+1.03
+- Fixed the options panel crash introduced with the CoA categories. The
+  localisation panel reads the English fallback name table behind
+  GBB.dungeonNames and concatenates the value with no nil check; the CoA names
+  had only been written to the front table. They now go into both.
+  That single crash was behind all three reported symptoms: empty window,
+  missing minimap button, and only the WotLK instances in the settings, because
+  it aborted Init before any of that was built.
+- Keystones are posted as an item link. The tokeniser turns the link prefix into
+  the word "hitem", which upstream files under Trade, so every keystone request
+  was landing there. Keystone lines now drop Trade, pin to Mythic+, and count as
+  a request even when the poster writes no role word.
+- AscensionContent.lua moved after RequestList.lua in the TOC, since it now
+  wraps GBB.GetDungeons.
+- New tools/loadtest.mjs: runs the addon in a Lua VM against a stubbed 3.3.5a
+  API and asserts that Init completes, the minimap button exists, the Classic
+  filter panel is built, and a real keystone line lands in Mythic+.
+
 1.02
 - FontString:SetMaxLines removed. Like SetScale before it, that method does
   not exist on a 3.3.5a FontString. It aborted OptionsInit at the channel

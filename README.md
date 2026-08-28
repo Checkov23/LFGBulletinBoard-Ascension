@@ -72,6 +72,7 @@ alone. The PTR branch has its own separate `Interface\AddOns` tree.
 | `FCF_OpenNewWindow(name, true)` | the second parameter does not exist here, so the LFG tab also showed whispers |
 | `FontString:SetScale()` | `SetScale` is a Frame method on 3.3.5a. Regions do not have it, so scaling a FontString threw. **This aborted `Init()` before the minimap button was created**, which is why the button was missing as well. Found in game on Rexxar |
 | `FontString:SetMaxLines()` | same class of bug. It aborted `OptionsInit` at the channel checkboxes, so the TBC and Classic filter panels were never built and only the WotLK one showed. It also aborted `UpdateList`, so the window stayed empty. Found in game on Rexxar |
+| a nil name for the CoA categories | self inflicted, in 1.02. The localisation panel reads the English fallback name table behind `GBB.dungeonNames` and concatenates it without a nil check, and the new keys were only in the front table. Same three symptoms again, because it aborted `Init`. Fixed in 1.03 |
 
 ## What was added
 
@@ -115,6 +116,18 @@ board empty on a server whose content is vanilla.
 `key` and `keys` are included on purpose because "LF2M +8 key" is the common phrasing. If that
 is too noisy for you, remove the words under *Settings > Search patterns* for that category.
 
+**Keystones get special handling.** On CoA a keystone is posted as an item link:
+
+```
+[Keystone: Scarlet Monastery - Library (11)] 1 slot heal /W ivl class
+```
+
+The tokeniser turns the link prefix into the word `hitem`, which upstream lists as a Trade
+keyword, so every keystone request would otherwise land under Trade. A line carrying a
+keystone link now drops Trade, is pinned to Mythic+, and counts as a request even when the
+poster writes no role word at all. The dungeon in the link still matches normally, so the
+example above shows up under both Mythic+ and Scarlet Monastery: Library.
+
 Channel selection works on **channel numbers**, not names, so it works on any server. All slots
 are enabled by default.
 
@@ -135,10 +148,29 @@ npm i luaparse@0.3.1 && node tools/check335.mjs ./LFGBulletinBoard
 ```
 
 It also rejects any method sent to a FontString that is not part of the 3.3.5a FontString
-API. That single rule covers both crashes this port hit in game, `SetScale` and `SetMaxLines`,
-and it was checked by reintroducing the bug and confirming the rule fires.
+API. That single rule covers two of the crashes this port hit in game, `SetScale` and
+`SetMaxLines`, and it was checked by reintroducing the bug and confirming the rule fires.
 
-Current state: 16 files, 0 syntax errors, 0 hard violations.
+`tools/loadtest.mjs` goes further and actually **runs** the addon. It loads every file in TOC
+order into a Lua VM against a stubbed 3.3.5a API, where each widget type exposes only the
+methods that client really has, then drives the startup path and asserts:
+
+* `Init` completes, which is what the three reported symptoms all depended on
+* the minimap button was created
+* the Classic filter panel exists and Mythic+ is enabled
+* a real keystone line from the server parses into the Mythic+ category
+
+```bash
+npm i luaparse@0.3.1 fengari@0.1.4
+node tools/check335.mjs ./LFGBulletinBoard
+node tools/loadtest.mjs ./LFGBulletinBoard
+```
+
+The VM is Lua 5.3, so the harness restores the 5.1 behaviour the client has where it matters:
+ascending `pairs` order over array tables, and `%` followed by a non-digit in a `gsub`
+replacement. Without those two the harness reports failures that never happen in game.
+
+Current state: 16 files, 0 syntax errors, 0 hard violations, load test passing.
 
 `tools/` also holds the two scripts that produced this port from the upstream sources,
 `port-30400-to-30300.py` and `fix-review-findings.py`. Every replacement in them carries an
