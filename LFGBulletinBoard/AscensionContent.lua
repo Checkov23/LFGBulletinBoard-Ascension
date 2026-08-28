@@ -41,10 +41,12 @@ local COA_TAGS={
 	             "taerar ysondre setis atalzul snowgrave kaldros depthbreaker soggoth",
 }
 
--- Sort order and options list: appended to the WotLK block, which keeps the
--- index arithmetic in GBB.GetDungeonSort consistent.
+-- Sort order and options list: appended to the Classic block, because CoA is
+-- vanilla content and that is the panel a CoA player looks at. GetDungeonSort
+-- derives MAXDUNGEON and the panel bounds from the list sizes, so appending
+-- here keeps the index arithmetic consistent.
 for _,key in ipairs(GBB.CoADungeonNames) do
-	table.insert(GBB.WotlkDungeonNames,key)
+	table.insert(GBB.VanillDungeonNames,key)
 end
 
 for key,range in pairs(GBB.CoADungeonLevels) do

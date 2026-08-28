@@ -288,7 +288,9 @@ function GBB.OptionsInit ()
 	GBB.Options.AddCategory(GBB.L["HeaderDungeon"])
 	GBB.Options.Indent(10)
 
-	local defaultChecked = false
+	-- Upstream ships these unticked. On Ascension the vanilla dungeons are the
+	-- content people actually run, so an empty board by default is wrong here.
+	local defaultChecked = true
 
 	ChkBox_FilterDungeon={}
 	for index=1,GBB.DUNGEONBREAK do

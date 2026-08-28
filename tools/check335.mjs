@@ -56,6 +56,28 @@ const SHIMMED = [
   [/\bScaleRegion\s*\(/, 'ScaleRegion (compat helper for SetScale)'],
 ]
 
+// FontStrings are Regions, not Frames. Several methods that exist on a modern
+// FontString are simply absent on 3.3.5a, and calling one aborts whatever is
+// running: that is what broke Init twice during this port (SetScale, then
+// SetMaxLines). So the receivers below may only be sent methods on this list.
+const FONTSTRING_RECEIVER = /(_G\[[^\]]*"Text"\]|_G\[[^\]]*"_(?:name|message|time)"\]|Options\.Frames\[[^\]]*\]|\btextbox\b|GroupBulletinBoardFrameTitle|GroupBulletinBoardFrameStatusText):([A-Za-z_]\w*)\s*\(/g
+const FONTSTRING_OK = new Set([
+  // Region
+  'GetName', 'GetObjectType', 'IsObjectType', 'GetParent', 'SetParent',
+  'Show', 'Hide', 'IsShown', 'IsVisible', 'SetAlpha', 'GetAlpha',
+  'SetPoint', 'GetPoint', 'GetNumPoints', 'ClearAllPoints', 'SetAllPoints',
+  'SetWidth', 'GetWidth', 'SetHeight', 'GetHeight',
+  'GetLeft', 'GetRight', 'GetTop', 'GetBottom', 'GetCenter',
+  'SetDrawLayer', 'GetDrawLayer', 'SetVertexColor',
+  // FontInstance
+  'SetFont', 'GetFont', 'SetFontObject', 'GetFontObject',
+  'SetTextColor', 'GetTextColor', 'SetShadowColor', 'SetShadowOffset',
+  'SetSpacing', 'GetSpacing', 'SetJustifyH', 'GetJustifyH', 'SetJustifyV', 'GetJustifyV',
+  // FontString
+  'SetText', 'GetText', 'SetFormattedText', 'GetStringWidth', 'GetStringHeight',
+  'SetNonSpaceWrap', 'CanNonSpaceWrap', 'SetTextHeight', 'SetAlphaGradient',
+])
+
 const ALLOW = /GBBCOMPAT_OK/
 
 if (!existsSync(join(dir, 'Compat335.lua'))) console.log('WARNING: Compat335.lua is missing.')
@@ -100,6 +122,15 @@ for (const f of files) {
     }
     for (const [re, hint] of SHIMMED) {
       if (re.test(line)) shimHits.push(`${f}:${i + 1}  ${hint}`)
+    }
+
+    FONTSTRING_RECEIVER.lastIndex = 0
+    let m
+    while ((m = FONTSTRING_RECEIVER.exec(line)) !== null) {
+      if (!FONTSTRING_OK.has(m[2])) {
+        hard++
+        console.log(`  VIOLATION ${f}:${i + 1}  FontString has no ${m[2]} on 3.3.5a, use GBB.Compat.TryCall\n            ${line.trim().slice(0, 130)}`)
+      }
     }
   })
 }

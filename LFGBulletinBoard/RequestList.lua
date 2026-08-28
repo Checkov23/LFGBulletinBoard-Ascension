@@ -127,7 +127,7 @@ local function CreateItem(yy,i,doCompact,req,forceHight)
 		_G[ItemFrameName.."_name"]:SetPoint("TOPLEFT")
 		_G[ItemFrameName.."_time"]:SetPoint("TOP",_G[ItemFrameName.."_name"], "TOP",0,0)
 
-		_G[ItemFrameName.."_message"]:SetNonSpaceWrap(false)
+		GBB.Compat.TryCall(_G[ItemFrameName.."_message"],"SetNonSpaceWrap",false)
 		_G[ItemFrameName.."_message"]:SetFontObject(GBB.DB.FontSize)
 		_G[ItemFrameName.."_name"]:SetFontObject(GBB.DB.FontSize)
 		_G[ItemFrameName.."_time"]:SetFontObject(GBB.DB.FontSize)
@@ -141,10 +141,10 @@ local function CreateItem(yy,i,doCompact,req,forceHight)
 	_G[ItemFrameName.."_message"]:SetHeight(999)
 
 	if GBB.DB.DontTrunicate then
-		_G[ItemFrameName.."_message"]:SetMaxLines(99)
+		GBB.Compat.TryCall(_G[ItemFrameName.."_message"],"SetMaxLines",99)
 		_G[ItemFrameName.."_message"]:SetText(" ")
 	else
-		_G[ItemFrameName.."_message"]:SetMaxLines(1)
+		GBB.Compat.TryCall(_G[ItemFrameName.."_message"],"SetMaxLines",1)
 		_G[ItemFrameName.."_message"]:SetText(" ")
 	end
 

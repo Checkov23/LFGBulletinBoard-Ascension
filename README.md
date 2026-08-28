@@ -14,6 +14,9 @@ re-release, not the 3.3.5a client that private servers run. Both are called "Wot
 APIs differ, and the old client aborts loading an addon as soon as it touches a function or
 event it does not know.
 
+Versions run as a simple increasing number: 1.02 is current. The two releases before the
+switch were named `2.64-ascension1` and `2.64-ascension2`; both are kept.
+
 ## Install
 
 1. Right click your Ascension shortcut, **Open file location**, then go to `Interface\AddOns`.
@@ -64,7 +67,8 @@ alone. The PTR branch has its own separate `Interface\AddOns` tree.
 | `enableMouseWheel` / `enableMouseClicks` in XML | not valid attributes in 3.3.5a, now set from Lua |
 | heroic filter hardwired to `UserLevel == 70` | on a level 60 server every heroic request disappeared once the level filter was on. It now uses the instance's own upper level |
 | `FCF_OpenNewWindow(name, true)` | the second parameter does not exist here, so the LFG tab also showed whispers |
-| `FontString:SetScale()` | `SetScale` is a Frame method on 3.3.5a. Regions do not have it, so scaling a FontString threw. **This aborted `Init()` before the minimap button was created**, which is why the button was missing as well. Found in game on Rexxar, fixed in 2.64-ascension2 |
+| `FontString:SetScale()` | `SetScale` is a Frame method on 3.3.5a. Regions do not have it, so scaling a FontString threw. **This aborted `Init()` before the minimap button was created**, which is why the button was missing as well. Found in game on Rexxar |
+| `FontString:SetMaxLines()` | same class of bug. It aborted `OptionsInit` at the channel checkboxes, so the TBC and Classic filter panels were never built and only the WotLK one showed. It also aborted `UpdateList`, so the window stayed empty. Found in game on Rexxar |
 
 ## What was added
 
@@ -86,6 +90,8 @@ left untouched. It supplies:
 * `ScaleRegion`, a stand-in for `SetScale`. Frames are scaled normally, FontStrings are
   scaled through their font height instead, remembering the unscaled height so repeated
   calls do not compound
+* `TryCall`, for methods that may be absent. `SetMaxLines` on a FontString is the case
+  that matters: losing the effect is cosmetic, calling it is fatal
 
 **`AscensionContent.lua`** adds the Conquest of Azeroth group content as four categories:
 
@@ -97,7 +103,11 @@ left untouched. It supplies:
 | World Bosses | `worldboss`, `wbtour`, `azuregos`, `kazzak`, `emeriss`, `lethon`, `taerar`, `ysondre`, `setis`, `atalzul`, `snowgrave` |
 
 The file only appends, it does not modify any existing table. To drop the categories again,
-remove the `AscensionContent.lua` line from the `.toc`.
+remove the `AscensionContent.lua` line from the `.toc`. The categories sit in the Classic
+block of the filter list, since CoA runs vanilla content.
+
+The Classic dungeon filters default to **on** here. Upstream ships them off, which leaves the
+board empty on a server whose content is vanilla.
 
 `key` and `keys` are included on purpose because "LF2M +8 key" is the common phrasing. If that
 is too noisy for you, remove the words under *Settings > Search patterns* for that category.
@@ -121,6 +131,10 @@ call patterns that do not exist on 3.3.5a.
 npm i luaparse@0.3.1 && node tools/check335.mjs ./LFGBulletinBoard
 ```
 
+It also rejects any method sent to a FontString that is not part of the 3.3.5a FontString
+API. That single rule covers both crashes this port hit in game, `SetScale` and `SetMaxLines`,
+and it was checked by reintroducing the bug and confirming the rule fires.
+
 Current state: 16 files, 0 syntax errors, 0 hard violations.
 
 `tools/` also holds the two scripts that produced this port from the upstream sources,
@@ -130,10 +144,12 @@ against a newer upstream release.
 
 ## Known limits
 
-* Verified statically and by review, plus one round of real in game feedback from Rexxar
-  (Conquest of Azeroth) that produced the `SetScale` fix in 2.64-ascension2. That fix itself
-  has not been confirmed in game yet. If something throws, the error text with the file and
-  line is enough to work from.
+* Verified statically and by review, plus two rounds of real in game feedback from Rexxar
+  (Conquest of Azeroth). Those produced the `SetScale` and `SetMaxLines` fixes. The 1.02
+  fixes themselves are not confirmed in game yet. If something throws, the error text with
+  the file and line is enough to work from.
+* `SetMaxLines` has no equivalent on 3.3.5a, so the "do not truncate" option cannot expand a
+  request to several lines. Messages stay on one line.
 * Hyperlink tooltips on hover do not exist on 3.3.5a, so that call is now guarded rather than
   active. Click, whisper, invite and `/who` are unaffected.
 * The split CoA dungeon wings (Gnomeregan Engineering Labs, Uldaman Map Chamber and so on) have

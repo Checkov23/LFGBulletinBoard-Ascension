@@ -274,8 +274,8 @@ function Options.AddCheckBox(DB,Var,Init,Text,width)
 	_G[ButtonName .. "Text"]:SetText(Text)
 	if width then
 		_G[ButtonName .. "Text"]:SetWidth(width)
-		_G[ButtonName .. "Text"]:SetNonSpaceWrap(false)
-		_G[ButtonName .. "Text"]:SetMaxLines(1)
+		Addon.Compat.TryCall(_G[ButtonName .. "Text"],"SetNonSpaceWrap",false)
+		Addon.Compat.TryCall(_G[ButtonName .. "Text"],"SetMaxLines",1)
 		Options.CBox[ButtonName]:SetHitRectInsets(0, -width, 0,0)
 	else
 		Options.CBox[ButtonName]:SetHitRectInsets(0, -_G[ButtonName.."Text"]:GetStringWidth()-2, 0,0)
@@ -472,8 +472,8 @@ function Options.EditCheckBox(toEdit,DB,Var,Init,Text,width)
 	_G[ButtonName .. "Text"]:SetText(Text)
 	if width then
 		_G[ButtonName .. "Text"]:SetWidth(width)
-		_G[ButtonName .. "Text"]:SetNonSpaceWrap(false)
-		_G[ButtonName .. "Text"]:SetMaxLines(1)
+		Addon.Compat.TryCall(_G[ButtonName .. "Text"],"SetNonSpaceWrap",false)
+		Addon.Compat.TryCall(_G[ButtonName .. "Text"],"SetMaxLines",1)
 		Options.CBox[ButtonName]:SetHitRectInsets(0, -width, 0,0)
 	else
 		Options.CBox[ButtonName]:SetHitRectInsets(0, -_G[ButtonName.."Text"]:GetStringWidth()-2, 0,0)

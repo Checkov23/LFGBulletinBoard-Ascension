@@ -2,6 +2,21 @@
 
 Group Bulletin Board 	
 
+1.02
+- FontString:SetMaxLines removed. Like SetScale before it, that method does
+  not exist on a 3.3.5a FontString. It aborted OptionsInit at the channel
+  checkboxes, so the TBC and Classic filter panels were never built, and it
+  aborted UpdateList, so the window stayed empty. The minimap button was
+  missing for the same reason: Init never got that far.
+- New GBB.Compat.TryCall for methods that may be absent
+- check335.mjs now rejects ANY method sent to a FontString that is not in
+  the 3.3.5a FontString API, which is the class of bug behind both crashes
+- CoA categories moved from the WotLK block to the Classic block, because
+  CoA runs vanilla content
+- Classic dungeon filters now default to on. Upstream ships them off, which
+  left the board empty on a vanilla-content server
+- Version scheme switched to a simple running number
+
 2.64-ascension2
 - FontString:SetScale removed. SetScale is a Frame method on 3.3.5a, so scaling
   a FontString threw and aborted Init before the minimap button was created.

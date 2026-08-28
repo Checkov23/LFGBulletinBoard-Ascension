@@ -193,6 +193,18 @@ end
 -- do not compound. If something else changes the font in between, the
 -- height no longer matches what we applied and the base is taken again.
 ----------------------------------------------------------------------
+-- Call a method only when this client actually has it. Returns true when the
+-- call happened. Used for the handful of FontString methods that only exist on
+-- later clients (SetMaxLines above all), where losing the effect is cosmetic
+-- but calling it is fatal.
+function C.TryCall(object,method,...)
+	if object==nil then return false end
+	local fn=object[method]
+	if type(fn)~="function" then return false end
+	fn(object,...)
+	return true
+end
+
 function C.ScaleRegion(region,scale)
 	if region==nil or scale==nil then return end
 	if region.SetScale then
