@@ -2,6 +2,20 @@
 
 Group Bulletin Board 	
 
+1.05
+- Right clicking the board threw in UIDropDownMenu_Initialize. Ascension ships
+  a NEWER UIDropDownMenu than stock 3.3.5a (the client has Interface/SharedXML),
+  and it concatenates frame:GetName(); the popup menu frame was created
+  anonymous, which stock 3.3.5a tolerates in MENU mode. It has a name now.
+- /gbbraw also prints a status line now: english keywords on or off, how many
+  keywords are loaded, whether "keystone" is one of them, which channels are
+  ticked, how many dungeon filters are on, and how many entries the board is
+  holding. That answers "why is the board empty" in one screenshot.
+- New /gbbfix: turns all 20 channels back on, every dungeon filter on, the level
+  filter off, english keywords on, unfolds all headers and rebuilds the keyword
+  table. Recovery from the half finished settings that the four crashed startups
+  before 1.03 may have written into SavedVariables.
+
 1.04
 - Mythic+ recognition widened. A keystone link still wins outright; on top of
   that "mythic", "+11", "M+" and "11 key" are now matched by pattern, because

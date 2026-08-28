@@ -514,6 +514,22 @@ const STEPS = [
     local d=GBB.GetDungeons("WTS |Hitem:1::::::::60:::::|h[Arcanite Reaper]|h 500g","Seller")
     if not (d and d["TRADE"]) then error("a plain item sale no longer counts as Trade",0) end
     if d["MPLUS"] then error("a plain item sale was filed as Mythic+",0) end`],
+  ['slash commands work', `
+    -- /gbbraw and /gbbfix must not throw: they are the diagnostic of last
+    -- resort, so they have to survive even a half broken saved state.
+    local GBB=__ADDON
+    SlashCmdList["GBBRAW"]("2")
+    GBB.DBChar.channel[1]=false
+    GBB.DBChar["FilterDungeonMPLUS"]=false
+    SlashCmdList["GBBFIX"]()
+    if GBB.DBChar.channel[1]~=true then error("/gbbfix did not re-enable channel 1",0) end
+    if GBB.DBChar["FilterDungeonMPLUS"]~=true then error("/gbbfix did not re-enable the Mythic+ filter",0) end
+    if not (GBB.tagList and GBB.tagList["keystone"]=="MPLUS") then error("/gbbfix lost the keystone keyword",0) end`],
+  ['right click menu has a named frame', `
+    -- Ascension ships a newer UIDropDownMenu that concatenates frame:GetName()
+    local GBB=__ADDON
+    local popup=GBB.Tool.CreatePopup(function() end)
+    if not popup._Frame:GetName() then error("popup menu frame is still anonymous",0) end`],
   ['parse a plain LFM line', `
     local GBB=__ADDON
     GBB.ParseMessage("LF2M SM Library, need tank and heal","Someone",nil,"Ascension")

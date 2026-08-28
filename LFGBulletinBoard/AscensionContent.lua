@@ -157,8 +157,57 @@ rawFrame:SetScript("OnEvent",function(self,event,msg,sender,_3,_4,_5,_6,_7,chann
 end)
 GBB.Compat.SafeRegisterEvent(rawFrame,"CHAT_MSG_CHANNEL")
 
+-- One line that answers "why is the board empty": are messages allowed through
+-- at all, is the keyword table built, and is anything left after filtering.
+local function printStatus()
+	local tags=0
+	for _ in pairs(GBB.tagList or {}) do tags=tags+1 end
+	local on,off={},0
+	for i=1,20 do
+		if GBB.DBChar and GBB.DBChar.channel and GBB.DBChar.channel[i] then on[#on+1]=i else off=off+1 end
+	end
+	local filtersOn,filtersOff=0,0
+	for i=1,(GBB.WOTLKMAXDUNGEON or 0) do
+		local key=GBB.dungeonSort and GBB.dungeonSort[i]
+		if key then
+			if GBB.DBChar["FilterDungeon"..key] then filtersOn=filtersOn+1 else filtersOff=filtersOff+1 end
+		end
+	end
+	print(GBB.MSGPREFIX.."v"..tostring(GBB.Version)
+		.."  english tags="..tostring(GBB.DB and GBB.DB.TagsEnglish)
+		.."  keywords="..tags
+		.."  keystone->"..tostring(GBB.tagList and GBB.tagList["keystone"]))
+	print(GBB.MSGPREFIX.."channels on: "..(#on>0 and table.concat(on,",") or "NONE, that alone empties the board")
+		.."   dungeon filters on/off: "..filtersOn.."/"..filtersOff
+		.."   level filter="..tostring(GBB.DBChar and GBB.DBChar.FilterLevel)
+		.."   entries held: "..tostring(#(GBB.RequestList or {})))
+end
+
 SLASH_GBBRAW1="/gbbraw"
 SlashCmdList["GBBRAW"]=function(arg)
+	printStatus()
 	rawLeft=tonumber(arg) or 8
 	print(GBB.MSGPREFIX.."capturing the next "..rawLeft.." channel lines, unparsed.")
+end
+
+-- Four crashed startups in a row could have written half finished settings.
+-- This puts the filters back to something usable without losing the window
+-- position or the colours.
+SLASH_GBBFIX1="/gbbfix"
+SlashCmdList["GBBFIX"]=function()
+	for i=1,20 do GBB.DBChar.channel[i]=true end
+	local n=0
+	for i=1,(GBB.WOTLKMAXDUNGEON or 0) do
+		local key=GBB.dungeonSort and GBB.dungeonSort[i]
+		if key then GBB.DBChar["FilterDungeon"..key]=true n=n+1 end
+	end
+	GBB.DBChar.FilterLevel=false
+	GBB.DBChar.HeroicOnly=false
+	GBB.DBChar.NormalOnly=false
+	GBB.DB.TagsEnglish=true
+	GBB.FoldedDungeons={}
+	GBB.CreateTagList()
+	GBB.UpdateList()
+	print(GBB.MSGPREFIX.."reset: all 20 channels on, "..n.." dungeon filters on, level filter off, english keywords on.")
+	printStatus()
 end

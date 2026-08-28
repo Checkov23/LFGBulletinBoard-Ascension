@@ -518,9 +518,15 @@ local function PopupShow(self,where,x,y)
 	self._y=y
 end
 
+local popupCount=0
+
 function Tool.CreatePopup(TableCallback)
 	local popup={}
-	popup._Frame=CreateFrame("Frame", nil, UIParent, "UIDropDownMenuTemplate")
+	-- The menu frame needs a real name. Stock 3.3.5a tolerates an anonymous one
+	-- in "MENU" display mode, but Ascension ships a newer UIDropDownMenu that
+	-- concatenates frame:GetName() and throws on nil the moment the menu opens.
+	popupCount=popupCount+1
+	popup._Frame=CreateFrame("Frame", TOCNAME.."_GPIPopup"..popupCount, UIParent, "UIDropDownMenuTemplate")
 	popup._Frame._GPIPRIVAT_TableCallback=TableCallback
 	popup._Frame._GPIPRIVAT_Items={}
 	popup._Frame._GPIPRIVAT_Items.count=0

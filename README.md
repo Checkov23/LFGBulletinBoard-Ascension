@@ -148,8 +148,22 @@ GBB:     -> MPLUS, SML
 
 `-> no category` means the line reached the addon but matched nothing, so the keywords need
 extending under *Settings > Search patterns*. No output at all means the line never arrived,
-which is a channel problem: check that the channel number is ticked under
-*Settings > Channels*.
+which is a channel problem.
+
+`/gbbraw` also prints a status line first:
+
+```
+GBB: v1.05  english tags=true  keywords=418  keystone->MPLUS
+GBB: channels on: 1,2,3,...   dungeon filters on/off: 93/0   level filter=false   entries held: 0
+```
+
+`channels on: NONE` or a large `filters off` count explains an empty board on its own.
+
+**`/gbbfix`** puts those back: all 20 channels on, every dungeon filter on, level filter off,
+english keywords on, all headers unfolded, keyword table rebuilt. Window position and colours
+are kept. Worth running once if the addon was installed while one of the pre-1.03 builds was
+crashing during startup, because a crash part way through the options panel can leave half
+written settings behind.
 
 ## Posting
 
