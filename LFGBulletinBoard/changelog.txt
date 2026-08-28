@@ -2,6 +2,20 @@
 
 Group Bulletin Board 	
 
+1.07
+- Addon to addon traffic no longer reaches the board. 3.3.5a cannot send addon
+  messages over a chat channel, so addons that want a server wide bus post
+  serialized payloads as ordinary chat lines into a hidden channel, for example
+  "LC1:CONF:dd2cba74:DW4Uoimmmu0ViIssZZzKqILWGz(...". The player never sees
+  those, but a channel scanner does, and random letters inevitably hit the two
+  and three letter dungeon abbreviations. One packet was showing up as
+  Stratholme, Zul'Aman and all four Scarlet Monastery wings at once, the last
+  because "sm" expands to every wing.
+  A line is treated as machine traffic when it contains a 20 character unbroken
+  alphanumeric run, or starts with two colon separated uppercase tokens. No
+  human LFG line does either. Verified against the real payloads and against
+  the real requests from the same board, which all still match.
+
 1.06
 - THE reason the board stayed empty. Ascension ships a newer FrameXML
   tContains that returns true or NOTHING, where stock 3.3.5a returns true or

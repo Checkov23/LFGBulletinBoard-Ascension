@@ -116,8 +116,34 @@ local function looksLikeMythicPlus(low)
 		or string.find(low,"%f[%w]%d+%s*keys?%f[%W]")~=nil  -- 11 key, 8 keys
 end
 
+----------------------------------------------------------------------
+-- Addon to addon traffic
+--
+-- 3.3.5a cannot send addon messages over a chat channel, so addons that want
+-- a server wide bus post serialized payloads as ordinary chat lines into a
+-- hidden channel, for example
+--   LC1:CONF:dd2cba74:DW4Uoimmmu0ViIssZZzKqILWGz(kL2eK6aLhjQc4Rh3UzF8XhOWvq
+-- The player never sees those, but a channel scanner does, and random letters
+-- inevitably hit the two and three letter dungeon abbreviations. One such
+-- packet showed up as Stratholme, Zul'Aman and all four Scarlet Monastery
+-- wings at once, because "sm" expands to every wing.
+--
+-- No human LFG line contains a 20 character unbroken alphanumeric run, and no
+-- human starts a line with two colon separated uppercase tokens.
+----------------------------------------------------------------------
+local LONG_RUN=string.rep("%w",20)
+
+local function looksLikeAddonTraffic(msg)
+	if string.find(msg,LONG_RUN) then return true end
+	if string.find(msg,"^%s*%u[%u%d]*:%u[%u%d]*:") then return true end
+	return false
+end
+
 local GetDungeons_orig=GBB.GetDungeons
 function GBB.GetDungeons(msg,name)
+	if type(msg)=="string" and looksLikeAddonTraffic(msg) then
+		return {},false,true,0,false
+	end
 	local dungeons,isGood,isBad,wordcount,isHeroic=GetDungeons_orig(msg,name)
 	if type(dungeons)=="table" and type(msg)=="string" then
 		local low=string.lower(msg)

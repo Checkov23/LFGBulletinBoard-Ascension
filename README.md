@@ -131,6 +131,23 @@ example above shows up under both Mythic+ and Scarlet Monastery: Library.
 Channel selection works on **channel numbers**, not names, so it works on any server. All slots
 are enabled by default.
 
+## Addon traffic
+
+3.3.5a cannot send addon messages over a chat channel, so addons that want a server wide bus
+post serialized payloads as ordinary chat lines into a hidden channel:
+
+```
+LC1:CONF:dd2cba74:DW4Uoimmmu0ViIssZZzKqILWGz(kL2eK6aLhjQc4Rh3UzF8XhOWvq
+```
+
+You never see those, but a channel scanner does, and random letters reliably hit two and three
+letter dungeon abbreviations. One such packet showed up as Stratholme, Zul'Aman and all four
+Scarlet Monastery wings at once, the last because `sm` expands to every wing.
+
+Those lines are dropped: a message counts as machine traffic when it contains a 20 character
+unbroken alphanumeric run, or starts with two colon separated uppercase tokens. No human LFG
+line does either, which is checked against real requests in the load test.
+
 ## When a line is not picked up
 
 `/gbbraw` prints the next 8 channel lines exactly as the addon receives them, with the

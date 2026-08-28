@@ -549,6 +549,42 @@ const STEPS = [
     local GBB=__ADDON
     local popup=GBB.Tool.CreatePopup(function() end)
     if not popup._Frame:GetName() then error("popup menu frame is still anonymous",0) end`],
+  ['addon traffic must not reach the board', `
+    -- 3.3.5a cannot send addon messages over a channel, so addons that want a
+    -- global bus post serialized payloads as ordinary chat lines into a hidden
+    -- channel. The player never sees them; every channel scanner does.
+    local GBB=__ADDON
+    local payloads={
+      "LC1:CONF:dd2cba74:DW4Uoimmmu0ViIssZZzKqILWGz(kL2eK6aLhjQc4Rh3UzF8XhOWvq",
+      "LC1:CONF:44a0f430:DWySoimmmuWViIIBCOjZiXOzWm)Kc0wPoGAHgvr5Rh3UD65ZhiCh",
+      "LC1:CONF:91dd7aa8:DW4YUkmmqm0ViQsctFTfKy5WcZAlfibrfck3E]Qa(6zA3zDS9HEEI46lI",
+    }
+    local hits={}
+    for _,p in ipairs(payloads) do
+      local d=GBB.GetDungeons(p,"Ryuryuk")
+      for k,v in pairs(d or {}) do if v then hits[#hits+1]=k end end
+    end
+    table.sort(hits)
+    __TRAFFIC=(#hits>0 and table.concat(hits,", ") or "nothing")
+    if #hits>0 then error("addon traffic matched: "..__TRAFFIC,0) end`],
+  ['real requests survive the traffic filter', `
+    -- The filter must not eat anything a person actually typed. These are the
+    -- real lines from the board, verbatim.
+    local GBB=__ADDON
+    local cases={
+      {"LFM [Keystone: Wailing Caverns - Crag of the Everliving (1)] Need Tank 2x Dps /wme","MPLUS"},
+      {"LF 1 TANK [Keystone: Blackrock Caverns (1) (Classic)]","MPLUS"},
+      {"LFG UBRS bloodmage 50 DPS","UBRS"},
+      {"2 dps lf ubrs","UBRS"},
+      {"DPS LF UBRS xp run","UBRS"},
+      {"DD search UBRS/ PARTY!","UBRS"},
+    }
+    local bad={}
+    for _,c in ipairs(cases) do
+      local d=GBB.GetDungeons(c[1],"Someone")
+      if not (d and d[c[2]]) then bad[#bad+1]=c[1] end
+    end
+    if #bad>0 then error("the filter ate real requests: "..table.concat(bad," | "),0) end`],
   ['parse a plain LFM line', `
     local GBB=__ADDON
     GBB.ParseMessage("LF2M SM Library, need tank and heal","Someone",nil,"Ascension")
@@ -567,7 +603,7 @@ for (const [label, code] of STEPS) {
 }
 
 try {
-  run(`if __DIAG then print("        "..__DIAG) end if __RESULT0 then print("        via CHAT_MSG_CHANNEL -> ".. __RESULT0) end if __RESULT then print("        direct parse -> ".. __RESULT) end if __RESULT2 then print("        plain LFM -> ".. __RESULT2) end if __RESULT3 then print("        bare keystone -> ".. __RESULT3) end`, 'result')
+  run(`if __DIAG then print("        "..__DIAG) end if __RESULT0 then print("        via CHAT_MSG_CHANNEL -> ".. __RESULT0) end if __RESULT then print("        direct parse -> ".. __RESULT) end if __RESULT2 then print("        plain LFM -> ".. __RESULT2) end if __RESULT3 then print("        bare keystone -> ".. __RESULT3) end if __TRAFFIC then print("        addon traffic -> ".. __TRAFFIC) end`, 'result')
 } catch { /* ignore */ }
 
 console.log(`\nLoad test: ${failed === 0 ? 'passed' : failed + ' failure(s)'}`)
