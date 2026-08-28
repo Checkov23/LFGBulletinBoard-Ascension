@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-"""Portiert LFG Bulletin Board 2.64 (WotLK Classic, Interface 30400)
-auf den WotLK-Client 3.3.5a (Interface 30300).
-Jede Ersetzung hat eine erwartete Trefferzahl. Weicht sie ab, bricht das Skript ab."""
+"""Ports LFG Bulletin Board 2.64 (WotLK Classic, Interface 30400)
+to the WotLK 3.3.5a client (Interface 30300).
+Every replacement carries an expected hit count. If it differs, the script aborts."""
 import sys, io, os
 
 ADDON = sys.argv[1]
 
-# (Datei, alt, neu, erwartete Treffer)
+# (file, old, new, expected hits)
 PATCHES = [
 
     # ---------------- TOC ----------------
@@ -14,19 +14,19 @@ PATCHES = [
     ("LFGBulletinBoard.toc", "## Version: 2.64", "## Version: 2.64-ascension1", 1),
     ("LFGBulletinBoard.toc",
      "## Notes: Sort LFG/LFM Messages",
-     "## Notes: Sort LFG/LFM Messages - portiert auf 3.3.5a (Ascension)", 1),
+     "## Notes: Sort LFG/LFM Messages - ported to the 3.3.5a client (Ascension)", 1),
     ("LFGBulletinBoard.toc", "LibGPIOptions.lua", "Compat335.lua\nLibGPIOptions.lua", 1),
     ("LFGBulletinBoard.toc", "GroupList.Lua", "GroupList.lua", 1),
 
     # ---------------- Chat.lua ----------------
-    # Nachrichtengruppen wie INSTANCE_CHAT gibt es in 3.3.5a nicht -> vorher aussieben
+    # Message groups such as INSTANCE_CHAT do not exist on 3.3.5a, so filter first
     ("Chat.lua",
      "for index = 1, select('#', ...) do",
      "local groups={GBB.Compat.FilterChatGroups(...)}\n\t\tfor index = 1, #groups do", 1),
     ("Chat.lua",
      "ChatFrame_AddMessageGroup(Frame, select(index, ...))",
      "ChatFrame_AddMessageGroup(Frame, groups[index])", 1),
-    # GetChannelList liefert je nach Build Paare statt Tripel
+    # GetChannelList returns pairs instead of triples depending on the build
     ("Chat.lua",
      "local channelList = {GetChannelList()}",
      "local channelList = GBB.Compat.ParseChannelList(GetChannelList())", 1),
@@ -36,11 +36,11 @@ PATCHES = [
     ("Chat.lua", "isDisabled = channelList[i+2]", "isDisabled = info.hidden", 1),
 
     # ---------------- GroupBulletinBoard.lua ----------------
-    # GROUP_* Ereignisse existieren erst ab 5.0; unbekannte Namen werfen im alten Client einen Fehler
+    # GROUP_* events only exist from 5.0; unknown names throw on the old client
     ("GroupBulletinBoard.lua",
      'local PartyChangeEvent={ "GROUP_JOINED", "GROUP_ROSTER_UPDATE", "RAID_ROSTER_UPDATE","GROUP_LEFT","LOADING_SCREEN_DISABLED","PLAYER_ENTERING_WORLD", "PLAYER_REGEN_DISABLED", "PLAYER_ENTERING_WORLD"}',
      'local PartyChangeEvent={ "PARTY_MEMBERS_CHANGED", "RAID_ROSTER_UPDATE", "PLAYER_ENTERING_WORLD", "PLAYER_REGEN_DISABLED"}', 1),
-    # 3.3.5a kennt nur Ton-Namen, keine SoundKit-IDs
+    # 3.3.5a takes sound names only, not SoundKit IDs
     ("GroupBulletinBoard.lua", "GBB.NotifySound=1210", 'GBB.NotifySound="TellMessage"', 1),
     ("GroupBulletinBoard.lua",
      'for i=1,select("#", ...),3 do',
@@ -73,7 +73,7 @@ PATCHES = [
     ("LibGPIToolBox.lua",
      "ResizeCursor.Texture:SetRotation(math.rad(self.GPI_Rotation),0.5,0.5)",
      "if ResizeCursor.Texture.SetRotation then ResizeCursor.Texture:SetRotation(math.rad(self.GPI_Rotation),0.5,0.5) end", 1),
-    # In 3.3.5a haben Gildennamen kein "-Realm"; string.match liefert dann nil
+    # On 3.3.5a guild names carry no "-Realm", so string.match returned nil
     ("LibGPIToolBox.lua",
      'if string.lower( string.match((GetGuildRosterInfo(i)),"(.-)-")) == name then',
      "local rosterName=GetGuildRosterInfo(i)\n"
@@ -107,7 +107,7 @@ PATCHES = [
      "if GroupBulletinBoardFrame_GroupFrame.SetTextCopyable then GroupBulletinBoardFrame_GroupFrame:SetTextCopyable(true) end", 1),
 
     # ---------------- RequestList.lua ----------------
-    # GetPlayerInfoByGUID gibt es erst ab Cataclysm, und 3.3.5a liefert im Chat keine GUID
+    # GetPlayerInfoByGUID may be absent, and a chat GUID is not always available
     ("RequestList.lua",
      "local locClass,engClass,locRace,engRace,Gender,gName,gRealm = GetPlayerInfoByGUID(guid)",
      "local locClass,engClass,locRace,engRace,Gender,gName,gRealm\n"
@@ -155,13 +155,13 @@ def run():
         text = cache[fname]
         found = text.count(old)
         if found != expect:
-            fails.append("%s: %d/%d Treffer fuer %r" % (fname, found, expect, old[:70]))
+            fails.append("%s: %d/%d hits for %r" % (fname, found, expect, old[:70]))
             continue
         cache[fname] = text.replace(old, new)
         print("  ok  %-28s %s" % (fname, old[:70].replace("\n", " ")))
 
     if fails:
-        print("\nFEHLGESCHLAGEN:")
+        print("\nFAILED:")
         for f in fails:
             print("  " + f)
         return 1
@@ -171,7 +171,7 @@ def run():
         with io.open(os.path.join(ADDON, fname), "w", encoding="utf-8",
                      errors="surrogateescape", newline="") as fh:
             fh.write(out)
-    print("\n%d Ersetzungen in %d Dateien geschrieben." % (len(PATCHES), len(cache)))
+    print("\n%d replacements written across %d files." % (len(PATCHES), len(cache)))
     return 0
 
 

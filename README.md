@@ -7,8 +7,6 @@ The addon watches your chat channels for group requests, sorts them by instance 
 them in its own window. Left click whispers the poster, Shift + left click runs `/who`,
 Ctrl + left click invites.
 
-German notes: see [LIESMICH.md](LIESMICH.md).
-
 ## Why this port exists
 
 The upstream 2.64 release declares `## Interface: 30400`. That is WotLK **Classic**, the 2022
@@ -66,6 +64,7 @@ alone. The PTR branch has its own separate `Interface\AddOns` tree.
 | `enableMouseWheel` / `enableMouseClicks` in XML | not valid attributes in 3.3.5a, now set from Lua |
 | heroic filter hardwired to `UserLevel == 70` | on a level 60 server every heroic request disappeared once the level filter was on. It now uses the instance's own upper level |
 | `FCF_OpenNewWindow(name, true)` | the second parameter does not exist here, so the LFG tab also showed whispers |
+| `FontString:SetScale()` | `SetScale` is a Frame method on 3.3.5a. Regions do not have it, so scaling a FontString threw. **This aborted `Init()` before the minimap button was created**, which is why the button was missing as well. Found in game on Rexxar, fixed in 2.64-ascension2 |
 
 ## What was added
 
@@ -84,6 +83,9 @@ left untouched. It supplies:
   `(id, name, disabled)`** like newer clients, which would have shifted every second channel
   mapping
 * `RegisterEvent` wrapped in `pcall`, so an unknown event name cannot kill the addon
+* `ScaleRegion`, a stand-in for `SetScale`. Frames are scaled normally, FontStrings are
+  scaled through their font height instead, remembering the unscaled height so repeated
+  calls do not compound
 
 **`AscensionContent.lua`** adds the Conquest of Azeroth group content as four categories:
 
@@ -121,14 +123,17 @@ npm i luaparse@0.3.1 && node tools/check335.mjs ./LFGBulletinBoard
 
 Current state: 16 files, 0 syntax errors, 0 hard violations.
 
-`tools/` also holds the three patch scripts that produced this port from the upstream sources.
-Every replacement in them carries an expected hit count and aborts if it does not match
-exactly, so the port can be repeated against a newer upstream release.
+`tools/` also holds the two scripts that produced this port from the upstream sources,
+`port-30400-to-30300.py` and `fix-review-findings.py`. Every replacement in them carries an
+expected hit count and aborts if it does not match exactly, so the port can be repeated
+against a newer upstream release.
 
 ## Known limits
 
-* The load path is verified statically and by review, **not in a running game**. Do the first
-  launch somewhere an error popup does not bother you.
+* Verified statically and by review, plus one round of real in game feedback from Rexxar
+  (Conquest of Azeroth) that produced the `SetScale` fix in 2.64-ascension2. That fix itself
+  has not been confirmed in game yet. If something throws, the error text with the file and
+  line is enough to work from.
 * Hyperlink tooltips on hover do not exist on 3.3.5a, so that call is now guarded rather than
   active. Click, whisper, invite and `/who` are unaffected.
 * The split CoA dungeon wings (Gnomeregan Engineering Labs, Uldaman Map Chamber and so on) have

@@ -149,8 +149,8 @@ local function CreateItem(yy,i,doCompact,req,forceHight)
 	end
 
 
-	_G[ItemFrameName.."_name"]:SetScale(doCompact)
-	_G[ItemFrameName.."_time"]:SetScale(doCompact)
+	GBB.Compat.ScaleRegion(_G[ItemFrameName.."_name"],doCompact)
+	GBB.Compat.ScaleRegion(_G[ItemFrameName.."_time"],doCompact)
 
 	if doCompact<1 then
 		_G[ItemFrameName.."_message"]:SetPoint("TOPLEFT",_G[ItemFrameName.."_name"], "BOTTOMLEFT", 0,0)

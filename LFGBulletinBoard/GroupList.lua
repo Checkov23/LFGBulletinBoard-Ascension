@@ -215,7 +215,7 @@ function GBB.InitGroupList()
 	
 
 	GroupBulletinBoardFrame_GroupFrame:SetFading(false);
-	-- enableMouseWheel ist in 3.3.5a kein XML-Attribut, darum hier
+	-- enableMouseWheel is not an XML attribute on 3.3.5a, so set it here
 	GroupBulletinBoardFrame_GroupFrame:EnableMouseWheel(true)
 	GroupBulletinBoardFrame_GroupFrame:SetFontObject(GBB.DB.FontSize);
 	GroupBulletinBoardFrame_GroupFrame:SetJustifyH("LEFT");

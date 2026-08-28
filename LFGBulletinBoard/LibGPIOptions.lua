@@ -159,7 +159,7 @@ function Options.AddPanel(Title,noheader,scrollable)
 		Options.Frames["title_"..c]:SetText(Title)
 	end
 	Options.Frames["title_"..c]:SetPoint("TOPLEFT", 10, -10)
-	Options.Frames["title_"..c]:SetScale(Options.scale)
+	Addon.Compat.ScaleRegion(Options.Frames["title_"..c],Options.scale)
 	
 	Options.NextRelativ=FrameName.."_Title"
 	Options.NextRelativX=25
@@ -206,7 +206,7 @@ function Options.AddCategory(Text)
 	Options.Frames[CatName]:SetText('|cffffffff' .. Text .. '|r')
 	Options.Frames[CatName]:SetPoint("TOPLEFT",Options.NextRelativ,"BOTTOMLEFT", Options.NextRelativX, Options.NextRelativY-10)
 	Options.Frames[CatName]:SetFontObject("GameFontNormalLarge")
-	Options.Frames[CatName]:SetScale(Options.scale)
+	Addon.Compat.ScaleRegion(Options.Frames[CatName],Options.scale)
 	Options.NextRelativ=CatName
 	Options.NextRelativX=0
 	Options.NextRelativY=0
@@ -237,7 +237,7 @@ function Options.AddButton(Text,func)
 		Options.LineRelativ=ButtonName
 	end
 	
-	Options.Btn[ButtonName]:SetScale(Options.scale)
+	Addon.Compat.ScaleRegion(Options.Btn[ButtonName],Options.scale)
 	Options.Btn[ButtonName]:SetScript("OnClick", func)
 	Options.Btn[ButtonName]:SetText(Text)
 	Options.Btn[ButtonName]:SetWidth( Options.Btn[ButtonName]:GetTextWidth()+20 )
@@ -295,7 +295,7 @@ function Options.AddCheckBox(DB,Var,Init,Text,width)
 		Options.LineRelativ=ButtonName
 	end
 	
-	Options.CBox[ButtonName]:SetScale(Options.scale)
+	Addon.Compat.ScaleRegion(Options.CBox[ButtonName],Options.scale)
 	if DB~=nil and Var~=nil then 
 		Options.CBox[ButtonName]:SetChecked(DB[Var])
 	else
@@ -365,7 +365,7 @@ function Options.AddColorButton(DB,Var,Init,Text,width)
 	
 	but:SetPoint("TOPLEFT", Options.NextRelativ,"TOPRIGHT", 5, 0)
 	
-	but:SetScale(Options.scale)
+	Addon.Compat.ScaleRegion(but,Options.scale)
 	
 	but:GetNormalTexture():SetVertexColor(DB[Var].r,DB[Var].g,DB[Var].b,DB[Var].a)
 	but.ColR,but.ColG,but.ColB,but.ColA=DB[Var].r,DB[Var].g,DB[Var].b,DB[Var].a
@@ -493,7 +493,7 @@ function Options.AddText(TXT,width,centre)
 	textbox= Options.CurrentPanel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 	textbox:SetText(TXT)
 	textbox:SetPoint("TOPLEFT",Options.NextRelativ,"BOTTOMLEFT", Options.NextRelativX, Options.NextRelativY-2)
-	textbox:SetScale(Options.scale)
+	Addon.Compat.ScaleRegion(textbox,Options.scale)
 	
 	
 	
@@ -593,7 +593,7 @@ function Options.AddEditBox(DB,Var,Init,TXTLeft,width,widthLeft,onlynumbers,tool
 	Options.Frames[CatName] = Options.CurrentPanel:CreateFontString(CatName, "OVERLAY", "GameFontNormal")
 	Options.Frames[CatName]:SetText('|cffffffff' .. TXTLeft .. '|r')
 	Options.Frames[CatName]:SetPoint("TOPLEFT",Options.NextRelativ,"BOTTOMLEFT", Options.NextRelativX, Options.NextRelativY-2)
-	Options.Frames[CatName]:SetScale(Options.scale)
+	Addon.Compat.ScaleRegion(Options.Frames[CatName],Options.scale)
 	if widthLeft==nil or widthLeft==0 then 
 		Options.Frames[CatName]:SetWidth(Options.Frames[CatName]:GetStringWidth())
 	else
@@ -614,7 +614,7 @@ function Options.AddEditBox(DB,Var,Init,TXTLeft,width,widthLeft,onlynumbers,tool
 
 	Options.Edit[ButtonName] = CreateFrame("EditBox", ButtonName, Options.CurrentPanel, "InputBoxTemplate")
 	Options.Edit[ButtonName]:SetPoint("TOPLEFT", Options.Frames[CatName],"TOPRIGHT",5 ,5)
-	Options.Edit[ButtonName]:SetScale(Options.scale)
+	Addon.Compat.ScaleRegion(Options.Edit[ButtonName],Options.scale)
 	Options.Edit[ButtonName]:SetWidth(width)
 	Options.Edit[ButtonName]:SetHeight(20)
 	

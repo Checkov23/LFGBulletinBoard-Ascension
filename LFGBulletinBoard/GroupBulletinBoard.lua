@@ -127,8 +127,8 @@ function GBB.FilterDungeon(dungeon, isHeroic, isRaid)
 	if isRaid == nil then isRaid = false end
 
 	-- If the user is within the level range, or if they're max level and it's heroic.
-	-- Privatserver haben eigene Stufengrenzen (Ascension CoA: 60), darum die
-	-- Obergrenze der Instanz nehmen statt die 70 aus dem Original.
+	-- Private servers have their own level caps (Ascension CoA: 60), so use the
+	-- instance's own upper level instead of the hardcoded 70 from upstream.
 	local levelRange = GBB.dungeonLevel[dungeon] or {0,100}
 	local inLevelRange = (levelRange[1] <= GBB.UserLevel and GBB.UserLevel <= levelRange[2])
 		or (isHeroic and GBB.UserLevel >= levelRange[2])

@@ -3,7 +3,7 @@ local TOCNAME,GBB=...
 function GBB.CreateChatFrame(name, ...)
 	local Frame = name and FCF_OpenNewWindow(name, true) or ChatFrame1
 	if name and Frame then
-		-- 3.3.5a kennt den zweiten Parameter nicht und haengt Standardgruppen an
+		-- 3.3.5a ignores the second parameter and attaches the default groups
 		if ChatFrame_RemoveAllMessageGroups then ChatFrame_RemoveAllMessageGroups(Frame) end
 		if ChatFrame_RemoveAllChannels then ChatFrame_RemoveAllChannels(Frame) end
 	end
@@ -107,11 +107,11 @@ function GBB.InsertChat()
 end
 
 function GBB.SendMessage(ChannelName, Msg)
-	local index = GetChannelName(ChannelName) -- 3.3.5a liefert 0, wenn der Kanal nicht betreten ist
+	local index = GetChannelName(ChannelName) -- 3.3.5a returns 0 when the channel has not been joined
 	if index~=nil and index>0 then 
   		SendChatMessage(Msg , "CHANNEL", nil, index);
 	else
-		DEFAULT_CHAT_FRAME:AddMessage(GBB.MSGPREFIX.."Kanal nicht betreten: "..tostring(ChannelName)) 
+		DEFAULT_CHAT_FRAME:AddMessage(GBB.MSGPREFIX.."channel not joined: "..tostring(ChannelName)) 
 	end
 end
 

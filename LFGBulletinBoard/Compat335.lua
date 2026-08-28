@@ -1,9 +1,9 @@
--- LFG Bulletin Board: Kompatibilitaetsschicht fuer den WotLK-Client 3.3.5a (Interface 30300)
--- Das Original ist fuer WotLK Classic (30400) gebaut und ruft APIs auf, die es
--- im alten Client nicht gibt. Diese Datei wird als erste geladen und fuellt nur
--- Luecken: was der Client selbst mitbringt, bleibt unangetastet.
--- Die Marke GBBCOMPAT_OK in einer Zeile sagt dem Pruefskript, dass die Stelle
--- absichtlich so aussieht.
+-- LFG Bulletin Board: compatibility layer for the WotLK 3.3.5a client (Interface 30300)
+-- Upstream is built for WotLK Classic (30400) and calls APIs the old client
+-- does not have. This file loads first and only fills gaps: whatever the
+-- client brings along itself is left untouched.
+-- A GBBCOMPAT_OK marker on a line tells the check script that the line is
+-- meant to look the way it does.
 local TOCNAME,GBB=...
 
 GBB.Compat={}
@@ -22,14 +22,14 @@ end
 C.StripRealm=stripRealm
 
 ----------------------------------------------------------------------
--- Zeit
+-- Time
 ----------------------------------------------------------------------
 if not has("GetServerTime") then                      -- GBBCOMPAT_OK
 	GetServerTime=time                                -- GBBCOMPAT_OK
 end
 
 ----------------------------------------------------------------------
--- Tabellen-Hilfen aus dem FrameXML
+-- Table helpers from FrameXML
 ----------------------------------------------------------------------
 if not has("tContains") then                          -- GBBCOMPAT_OK
 	function tContains(table,item)                    -- GBBCOMPAT_OK
@@ -41,7 +41,7 @@ if not has("tContains") then                          -- GBBCOMPAT_OK
 end
 
 ----------------------------------------------------------------------
--- Gruppen-Abfragen (IsInRaid/IsInGroup kamen erst mit 5.0)
+-- Group queries (IsInRaid/IsInGroup arrived with 5.0)
 ----------------------------------------------------------------------
 if not has("IsInRaid") then                           -- GBBCOMPAT_OK
 	function IsInRaid()                               -- GBBCOMPAT_OK
@@ -65,7 +65,7 @@ if not has("GetNumGroupMembers") then                 -- GBBCOMPAT_OK
 end
 
 ----------------------------------------------------------------------
--- UnitFullName gibt es erst ab MoP
+-- UnitFullName arrived with MoP
 ----------------------------------------------------------------------
 if not has("UnitFullName") then                       -- GBBCOMPAT_OK
 	function UnitFullName(unit)                       -- GBBCOMPAT_OK
@@ -76,7 +76,7 @@ if not has("UnitFullName") then                       -- GBBCOMPAT_OK
 end
 
 ----------------------------------------------------------------------
--- Freundesliste: C_FriendList kam erst mit BfA
+-- Friends list: C_FriendList arrived with BfA
 ----------------------------------------------------------------------
 local friendRefresh=0
 local function refreshFriends()
@@ -119,14 +119,14 @@ if type(C_FriendList.AddIgnore)~="function" then          -- GBBCOMPAT_OK
 	end
 end
 
--- Namensbasiert, weil 3.3.5a in Chat-Ereignissen keine GUID liefert
+-- By name, because a usable GUID is not always available in chat events
 function C.IsFriendName(name)
 	if not name then return false end
 	return C_FriendList.GetFriendInfo(stripRealm(name))~=nil
 end
 
 ----------------------------------------------------------------------
--- Gildenmitgliedschaft: die GUID-Variante gibt es hier nicht
+-- Guild membership: the GUID based variant does not exist here
 ----------------------------------------------------------------------
 local guildNames,guildDirty,guildRequest={},true,0
 local function refreshGuild()
@@ -155,8 +155,9 @@ function C.IsGuildMemberName(name)
 end
 
 ----------------------------------------------------------------------
--- Klassenfarben: colorStr fehlt in 3.3.5a, und unbekannte oder leere
--- Klassen (klassenloser Ascension-Server) duerfen keinen Fehler ausloesen
+-- Class colours: colorStr is missing on 3.3.5a, and unknown or empty
+-- classes must not throw. Ascension ships custom classes, so that case is
+-- the norm rather than the exception.
 ----------------------------------------------------------------------
 C.DefaultClassColor={r=1,g=0.82,b=0,colorStr="ffffd100"}
 
@@ -177,7 +178,7 @@ C.ClassColor=setmetatable({},{__index=function(t,k)
 	return e
 end})
 
--- Klassensymbole duerfen ebenfalls nicht auf nil laufen
+-- Class icons must not run into nil either
 function C.SafeIconTable(t)
 	return setmetatable({},{__index=function(_,k)
 		if k==nil then return "" end
@@ -186,7 +187,30 @@ function C.SafeIconTable(t)
 end
 
 ----------------------------------------------------------------------
--- Klasse zu einem Namen finden (Ersatz fuer GetPlayerInfoByGUID)
+-- Scaling: on 3.3.5a SetScale is a Frame method. FontStrings and other
+-- regions do not have it, so scaling one throws. Emulate it through the
+-- font height instead, and remember the unscaled height so repeated calls
+-- do not compound. If something else changes the font in between, the
+-- height no longer matches what we applied and the base is taken again.
+----------------------------------------------------------------------
+function C.ScaleRegion(region,scale)
+	if region==nil or scale==nil then return end
+	if region.SetScale then
+		region:SetScale(scale)                            -- GBBCOMPAT_OK
+		return
+	end
+	if not region.GetFont then return end
+	local font,height,flags=region:GetFont()
+	if not font or not height then return end
+	if region.gbbBaseFontHeight==nil or region.gbbAppliedFontHeight~=height then
+		region.gbbBaseFontHeight=height
+	end
+	region.gbbAppliedFontHeight=region.gbbBaseFontHeight*scale
+	region:SetFont(font,region.gbbAppliedFontHeight,flags)
+end
+
+----------------------------------------------------------------------
+-- Find the class for a name (stand-in for GetPlayerInfoByGUID)
 ----------------------------------------------------------------------
 local classCache={}
 
@@ -244,7 +268,7 @@ function C.GetClassByName(name)
 end
 
 ----------------------------------------------------------------------
--- Ereignisse: unbekannte Ereignisnamen wirft der alte Client als Fehler
+-- Events: the old client throws on unknown event names
 ----------------------------------------------------------------------
 function C.SafeRegisterEvent(frame,event)
 	local ok=pcall(frame.RegisterEvent,frame,event)
@@ -252,8 +276,8 @@ function C.SafeRegisterEvent(frame,event)
 end
 
 ----------------------------------------------------------------------
--- Kanalliste: je nach Build liefert GetChannelList Paare (id,name) oder
--- Tripel (id,name,disabled). Beides sauber einlesen.
+-- Channel list: depending on the build GetChannelList returns pairs
+-- (id,name) or triples (id,name,disabled). Read both cleanly.
 ----------------------------------------------------------------------
 function C.ParseChannelList(...)
 	local t={}
@@ -274,7 +298,7 @@ function C.ParseChannelList(...)
 end
 
 ----------------------------------------------------------------------
--- Ton: 3.3.5a kennt nur Namen, keine SoundKit-IDs
+-- Sound: 3.3.5a takes sound names, not SoundKit IDs
 ----------------------------------------------------------------------
 function C.PlayNotifySound(sound)
 	if sound==nil then return end
@@ -284,7 +308,7 @@ function C.PlayNotifySound(sound)
 end
 
 ----------------------------------------------------------------------
--- Chat-Nachrichtengruppen, die es in 3.3.5a nicht gibt, aussortieren
+-- Drop chat message groups that do not exist on 3.3.5a
 ----------------------------------------------------------------------
 function C.FilterChatGroups(...)
 	local out={}

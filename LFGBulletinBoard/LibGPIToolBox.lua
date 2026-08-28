@@ -91,7 +91,7 @@ end
 
 function Tool.EnableHyperlink(frame)
 	if frame.SetHyperlinksEnabled then frame:SetHyperlinksEnabled(true) end
-	-- 3.3.5a kennt diese Skripte nur auf ScrollingMessageFrame/SimpleHTML
+	-- 3.3.5a only has these scripts on ScrollingMessageFrame/SimpleHTML
 	if frame.HasScript and frame:HasScript("OnHyperlinkEnter") then
 		frame:SetScript("OnHyperlinkEnter",EnterHyperlink)
 		frame:SetScript("OnHyperlinkLeave",LeaveHyperlink)

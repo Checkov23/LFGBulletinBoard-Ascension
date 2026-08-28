@@ -2,22 +2,30 @@
 
 Group Bulletin Board 	
 
-2.64-ascension1 (Portierung auf WoW 3.3.5a / Project Ascension)
-- Interface auf 30300 gesetzt
-- Compat335.lua: Kompatibilitaetsschicht fuer 3.3.5a
-- AscensionContent.lua: Manastorm, Mythic+, CoA-Dungeons, Weltbosse
-- Ereignisse GROUP_JOINED/GROUP_ROSTER_UPDATE/GROUP_LEFT/LOADING_SCREEN_DISABLED entfernt
-- C_FriendList, C_Map, IsGuildMember, IsInRaid, UnitFullName, UnitDistanceSquared ersetzt
-- GetChannelList wird als Paar ODER Tripel eingelesen (Ascension liefert Paare)
-- ScrollFrame.ScrollBar ueber _G geholt (Fenster blieb sonst leer)
-- GetChecked auf echten Boolean normalisiert (Optionen sprangen sonst zurueck)
-- GetScrollOffset faellt auf GetCurrentScroll zurueck
-- OnHyperlinkEnter/-Leave nur noch, wo der Frame das Skript kennt
-- GetChannelName-Ergebnis 0 wird als "nicht betreten" behandelt
-- Minimap-Texturen wieder als Pfade statt FileDataIDs
-- enableMouseWheel/enableMouseClicks aus dem XML nach Lua verschoben
-- Heroic-Stufenfilter nicht mehr auf 70 verdrahtet
-- PlaySound mit Namen statt SoundKit-ID
+2.64-ascension2
+- FontString:SetScale removed. SetScale is a Frame method on 3.3.5a, so scaling
+  a FontString threw and aborted Init before the minimap button was created.
+  All scaling now goes through GBB.Compat.ScaleRegion, which scales frames
+  normally and FontStrings through their font height.
+  Reported in game on Rexxar (Conquest of Azeroth).
+- All comments and messages translated to English
+
+2.64-ascension1 (port to WoW 3.3.5a / Project Ascension)
+- Interface set to 30300
+- Compat335.lua: compatibility layer for 3.3.5a
+- AscensionContent.lua: Manastorm, Mythic+, CoA dungeons, world bosses
+- Removed the events GROUP_JOINED/GROUP_ROSTER_UPDATE/GROUP_LEFT/LOADING_SCREEN_DISABLED
+- Replaced C_FriendList, C_Map, IsGuildMember, IsInRaid, UnitFullName, UnitDistanceSquared
+- GetChannelList is read as pairs OR triples (Ascension returns pairs)
+- ScrollFrame.ScrollBar fetched through _G (the window stayed empty otherwise)
+- GetChecked normalised to a real boolean (options reset themselves otherwise)
+- GetScrollOffset falls back to GetCurrentScroll
+- OnHyperlinkEnter/-Leave only where the frame knows the script
+- A GetChannelName result of 0 is treated as "not joined"
+- Minimap textures back to paths instead of FileDataIDs
+- enableMouseWheel/enableMouseClicks moved out of the XML into Lua
+- Heroic level filter no longer hardwired to level 70
+- PlaySound with a name instead of a SoundKit ID
 
 2.63
 - Improved performance (fingers crossed). All thanks to dkcas11 who made the changes unless it doesn't work then blame him
