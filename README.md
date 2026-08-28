@@ -159,6 +159,12 @@ GBB: channels on: 1,2,3,...   dungeon filters on/off: 93/0   level filter=false 
 
 `channels on: NONE` or a large `filters off` count explains an empty board on its own.
 
+One case worth knowing about, because it produced a completely empty board with no error at
+all: this client ships a newer FrameXML `tContains` that returns `true` or **nothing**, where
+stock 3.3.5a returns `true` or `false`. The bundled `Tool.Split` only added a word when
+`tContains(...) == false`, so against Ascension it added nothing and every keyword list came
+out empty. `/gbbraw` showed it as `keywords=1  keystone->nil`. Fixed in 1.06.
+
 **`/gbbfix`** puts those back: all 20 channels on, every dungeon filter on, level filter off,
 english keywords on, all headers unfolded, keyword table rebuilt. Window position and colours
 are kept. Worth running once if the addon was installed while one of the pre-1.03 builds was

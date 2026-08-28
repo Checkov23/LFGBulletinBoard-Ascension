@@ -36,6 +36,8 @@ const HARD = [
   [/enableMouseWheel\s*=|enableMouseClicks\s*=/, 'not an XML attribute on 3.3.5a, call EnableMouseWheel() from Lua'],
   [/\bGetChecked\(\)(?!\s*and)/, 'GetChecked returns 1/nil on 3.3.5a, normalise with "and true or false"'],
   [/:SetScale\s*\(/, 'SetScale is Frame only on 3.3.5a, route through GBB.Compat.ScaleRegion'],
+  [/tContains\s*\([^)]*\)\s*==\s*(false|true)/,
+    'compare tContains for truth: Ascension returns true/nil, stock 3.3.5a true/false'],
 ]
 
 // Allowed, because Compat335.lua catches it or the call site is guarded

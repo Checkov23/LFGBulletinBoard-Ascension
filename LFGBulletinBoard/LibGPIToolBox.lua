@@ -253,7 +253,7 @@ function Tool.iMerge(t1,...)
 		local var=select(index,...)
 		if type(var)=="table" then 
 			for i,v in ipairs(var) do 
-				if tContains(t1,v)==false then
+				if not tContains(t1,v) then
 					tinsert(t1,v)
 				end
 			end
@@ -307,7 +307,7 @@ function Tool.iSplit(inputstr, sep)
 	end
 	local t={}
 	for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
-		if tContains(t, str)==false then
+		if not tContains(t, str) then
 			table.insert(t,tonumber(str))
 		end
 	end
@@ -320,7 +320,7 @@ function Tool.Split(inputstr, sep)
 	end
 	local t={}
 	for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
-		if tContains(t, str)==false then
+		if not tContains(t, str) then
 			table.insert(t, str)
 		end
 	end

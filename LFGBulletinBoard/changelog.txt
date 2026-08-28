@@ -2,6 +2,21 @@
 
 Group Bulletin Board 	
 
+1.06
+- THE reason the board stayed empty. Ascension ships a newer FrameXML
+  tContains that returns true or NOTHING, where stock 3.3.5a returns true or
+  false. Tool.Split only inserted a word when "tContains(t,str)==false", which
+  is never true against the newer one, so every keyword list built through
+  langSplit came out EMPTY. The only surviving keyword was the single hand
+  written literal in Tags.lua, which is why /gbbraw reported exactly
+  "keywords=1  keystone->nil".
+  All four comparisons now test for truth instead of equality with false.
+  Keyword count goes from 1 to 418 and keystone resolves to MPLUS.
+- The load test now models Ascension's tContains rather than the stock one, and
+  asserts the keyword table is populated. It reproduces the empty board exactly
+  before the fix and passes after.
+- check335.mjs rejects "tContains(...) == false".
+
 1.05
 - Right clicking the board threw in UIDropDownMenu_Initialize. Ascension ships
   a NEWER UIDropDownMenu than stock 3.3.5a (the client has Interface/SharedXML),

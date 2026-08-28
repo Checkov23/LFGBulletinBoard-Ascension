@@ -319,6 +319,16 @@ strjoin=function(sep,...) return table.concat({...},sep) end
 abs=math.abs ceil=math.ceil floor=math.floor max=math.max min=math.min
 random=math.random sqrt=math.sqrt mod=math.fmod
 
+-- Ascension ships a NEWER FrameXML tContains that returns true or nothing,
+-- where the 3.3.5a original returned true or false. Model the client we
+-- actually ship to, not the one in the docs: code written as
+-- "tContains(...) == false" silently stops working against this one.
+function tContains(t, item)
+  for _, v in pairs(t) do
+    if v == item then return true end
+  end
+end
+
 UISpecialFrames={}
 StaticPopupDialogs={}
 function UnitLevel() return 60 end
@@ -514,6 +524,15 @@ const STEPS = [
     local d=GBB.GetDungeons("WTS |Hitem:1::::::::60:::::|h[Arcanite Reaper]|h 500g","Seller")
     if not (d and d["TRADE"]) then error("a plain item sale no longer counts as Trade",0) end
     if d["MPLUS"] then error("a plain item sale was filed as Mythic+",0) end`],
+  ['keyword table is populated', `
+    -- keywords=1 in game meant every langSplit list was empty and only the one
+    -- hand written literal tag survived. Assert the table is real.
+    local GBB=__ADDON
+    local n=0
+    for _ in pairs(GBB.tagList or {}) do n=n+1 end
+    if n<100 then error("keyword table has only "..n.." entries, the split lists are empty",0) end
+    if GBB.tagList["keystone"]~="MPLUS" then error("keystone is not a keyword",0) end
+    if GBB.tagList["lfm"]==nil then error("lfm is not a keyword",0) end`],
   ['slash commands work', `
     -- /gbbraw and /gbbfix must not throw: they are the diagnostic of last
     -- resort, so they have to survive even a half broken saved state.

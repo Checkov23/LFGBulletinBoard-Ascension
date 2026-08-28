@@ -259,7 +259,7 @@ function GBB.CreateTagListLOC(loc)
 		if GBB.DB.OnDebug and tContains(GBB.suffixTags,tag) then
 			print(GBB.MSGPREFIX.."DoubleSuffix:"..tag)
 		end	
-		if tContains(GBB.suffixTags,tag)==false then tinsert(GBB.suffixTags,tag) end
+		if not tContains(GBB.suffixTags,tag) then tinsert(GBB.suffixTags,tag) end
 	end
 	
 	for dungeon,tags in pairs(GBB.dungeonTagsLoc[loc]) do
