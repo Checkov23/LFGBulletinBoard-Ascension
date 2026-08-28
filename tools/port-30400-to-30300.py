@@ -11,7 +11,7 @@ PATCHES = [
 
     # ---------------- TOC ----------------
     ("LFGBulletinBoard.toc", "## Interface: 30400", "## Interface: 30300", 1),
-    ("LFGBulletinBoard.toc", "## Version: 2.64", "## Version: 2.64-ascension1", 1),
+    ("LFGBulletinBoard.toc", "## Version: 2.64", "## Version: 1.00", 1),
     ("LFGBulletinBoard.toc",
      "## Notes: Sort LFG/LFM Messages",
      "## Notes: Sort LFG/LFM Messages - ported to the 3.3.5a client (Ascension)", 1),

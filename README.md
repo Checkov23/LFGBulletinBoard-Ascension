@@ -14,8 +14,11 @@ re-release, not the 3.3.5a client that private servers run. Both are called "Wot
 APIs differ, and the old client aborts loading an addon as soon as it touches a function or
 event it does not know.
 
-Versions run as a simple increasing number: 1.02 is current. The two releases before the
-switch were named `2.64-ascension1` and `2.64-ascension2`; both are kept.
+Versions run as a simple increasing number: 1.02 is current. Release files carry the
+version in the name, for example `LFGBulletinBoard-Ascension-1.02.zip`. The first two
+releases went out as `2.64-ascension1` and `2.64-ascension2` and were renumbered to 1.00
+and 1.01 so the release list sorts correctly. Both are kept, and the `.toc` inside those
+two archives still shows the old name.
 
 ## Install
 

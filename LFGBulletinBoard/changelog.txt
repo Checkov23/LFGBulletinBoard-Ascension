@@ -17,7 +17,7 @@ Group Bulletin Board
   left the board empty on a vanilla-content server
 - Version scheme switched to a simple running number
 
-2.64-ascension2
+1.01 (published as 2.64-ascension2, renumbered)
 - FontString:SetScale removed. SetScale is a Frame method on 3.3.5a, so scaling
   a FontString threw and aborted Init before the minimap button was created.
   All scaling now goes through GBB.Compat.ScaleRegion, which scales frames
@@ -25,7 +25,8 @@ Group Bulletin Board
   Reported in game on Rexxar (Conquest of Azeroth).
 - All comments and messages translated to English
 
-2.64-ascension1 (port to WoW 3.3.5a / Project Ascension)
+1.00 (published as 2.64-ascension1, renumbered)
+Port to WoW 3.3.5a / Project Ascension
 - Interface set to 30300
 - Compat335.lua: compatibility layer for 3.3.5a
 - AscensionContent.lua: Manastorm, Mythic+, CoA dungeons, world bosses
