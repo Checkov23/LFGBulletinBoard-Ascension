@@ -131,6 +131,26 @@ example above shows up under both Mythic+ and Scarlet Monastery: Library.
 Channel selection works on **channel numbers**, not names, so it works on any server. All slots
 are enabled by default.
 
+## When a line is not picked up
+
+`/gbbraw` prints the next 8 channel lines exactly as the addon receives them, with the
+categories each one matched:
+
+```
+/gbbraw          the next 8 lines
+/gbbraw 20       the next 20
+```
+
+```
+GBB: raw [1 Ascension] Magicnovitch: |cffa335ee|Hitem:137642:...|h[Keystone: ...]|h|r 1 slot heal
+GBB:     -> MPLUS, SML
+```
+
+`-> no category` means the line reached the addon but matched nothing, so the keywords need
+extending under *Settings > Search patterns*. No output at all means the line never arrived,
+which is a channel problem: check that the channel number is ticked under
+*Settings > Channels*.
+
 ## Posting
 
 The post button sends once per click. There is no auto repeat, deliberately: Ascension's rules

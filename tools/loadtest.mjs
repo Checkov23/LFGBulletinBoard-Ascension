@@ -453,6 +453,29 @@ const STEPS = [
       error("Mythic+ filter is not enabled by default",0)
     end`],
   ['GBB.UpdateList()', 'local GBB=__ADDON GroupBulletinBoardFrame.IsVisible=function() return true end GBB.UpdateList()'],
+  ['CHAT_MSG_CHANNEL on channel 1', `
+    -- The real path: the addon gates on GBB.DBChar.channel[arg8] before it ever
+    -- parses. On CoA nearly everything is posted in channel 1 ("Ascension").
+    local GBB=__ADDON
+    local raw="|cffa335ee|Hitem:137642::::::::60:::::|h[Keystone: Scarlet Monastery - Library (11)]|h|r 1 slot heal /W ivl class"
+    local d,isGood,isBad,wc = GBB.GetDungeons(raw,"Magicnovitch")
+    local names={}
+    for k,v in pairs(d or {}) do if v then names[#names+1]=k end end
+    table.sort(names)
+    __DIAG=("channel[1]="..tostring(GBB.DBChar.channel[1])
+      .."  isGood="..tostring(isGood).."  isBad="..tostring(isBad)
+      .."  words="..tostring(wc).."  dungeons={"..table.concat(names,",").."}"
+      .."  tag_keystone="..tostring(GBB.tagList and GBB.tagList["keystone"])
+      .."  filterMPLUS="..tostring(GBB.FilterDungeon("MPLUS",false,true)))
+    for _,frame in ipairs(__events["CHAT_MSG_CHANNEL"] or {}) do
+      local h=frame.__scripts and frame.__scripts.OnEvent
+      if h then h(frame,"CHAT_MSG_CHANNEL",raw,"Magicnovitch","","1. Ascension","","",0,1,"Ascension","",7,"") end
+    end
+    local hit=nil
+    for _,r in pairs(GBB.RequestList) do
+      if type(r)=="table" and r.name=="Magicnovitch" and r.dungeon then hit=(hit and hit..", " or "")..r.dungeon end
+    end
+    __RESULT0=hit or "(nothing reached the board)"`],
   ['parse a keystone request', `
     local GBB=__ADDON
     GBB.DBChar.channel[1]=true
@@ -470,6 +493,27 @@ const STEPS = [
       if type(r)=="table" and r.name=="Keyguy" and r.dungeon then hit=(hit and hit..", " or "")..r.dungeon end
     end
     __RESULT3=hit or "(nothing matched)"`],
+  ['mythic plus phrasings', `
+    -- The tokeniser destroys punctuation, so these can only match by pattern.
+    local GBB=__ADDON
+    local cases={
+      "LF3M +11 SM Library need heal",
+      "M+ 8 lfm dps",
+      "lf2m 14 key tank",
+      "mythic scarlet monastery lf1m",
+      "[Keystone: Gnomeregan (14)] lf3m",
+    }
+    local bad={}
+    for _,line in ipairs(cases) do
+      local d=GBB.GetDungeons(line,"Tester")
+      if not (d and d["MPLUS"]) then bad[#bad+1]=line end
+    end
+    if #bad>0 then error("not recognised as Mythic+: "..table.concat(bad," | "),0) end`],
+  ['a real sale must stay in Trade', `
+    local GBB=__ADDON
+    local d=GBB.GetDungeons("WTS |Hitem:1::::::::60:::::|h[Arcanite Reaper]|h 500g","Seller")
+    if not (d and d["TRADE"]) then error("a plain item sale no longer counts as Trade",0) end
+    if d["MPLUS"] then error("a plain item sale was filed as Mythic+",0) end`],
   ['parse a plain LFM line', `
     local GBB=__ADDON
     GBB.ParseMessage("LF2M SM Library, need tank and heal","Someone",nil,"Ascension")
@@ -488,7 +532,7 @@ for (const [label, code] of STEPS) {
 }
 
 try {
-  run(`if __RESULT then print("        keystone -> ".. __RESULT) end if __RESULT2 then print("        plain LFM -> ".. __RESULT2) end if __RESULT3 then print("        bare keystone -> ".. __RESULT3) end`, 'result')
+  run(`if __DIAG then print("        "..__DIAG) end if __RESULT0 then print("        via CHAT_MSG_CHANNEL -> ".. __RESULT0) end if __RESULT then print("        direct parse -> ".. __RESULT) end if __RESULT2 then print("        plain LFM -> ".. __RESULT2) end if __RESULT3 then print("        bare keystone -> ".. __RESULT3) end`, 'result')
 } catch { /* ignore */ }
 
 console.log(`\nLoad test: ${failed === 0 ? 'passed' : failed + ' failure(s)'}`)

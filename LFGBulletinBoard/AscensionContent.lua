@@ -13,11 +13,14 @@ local SPLIT=GBB.Tool.Split
 
 GBB.CoADungeonNames={"MANA","MPLUS","COADUN","WB"}
 
+-- Deliberately wide. CoA scales its content, and a narrow range only creates a
+-- way for the level filter to hide these categories from the very people who
+-- want them.
 GBB.CoADungeonLevels={
-	["MANA"]   = {10,60},
-	["MPLUS"]  = {60,60},
+	["MANA"]   = {1,60},
+	["MPLUS"]  = {1,60},
 	["COADUN"] = {1,60},
-	["WB"]     = {60,60},
+	["WB"]     = {1,60},
 }
 
 GBB.CoADungeonDisplay={
@@ -97,14 +100,65 @@ end
 -- Trade. On CoA a keystone link is a group request, not a sale. Drop Trade for
 -- those, pin them to the Mythic+ category, and treat the link itself as enough
 -- to count as a request even when the poster writes no role word at all.
+-- A keystone link is unambiguous: it is a group request, never a sale.
+local function hasKeystoneLink(low)
+	return string.find(low,"keystone",1,true)~=nil
+end
+
+-- Looser phrasings. The tokeniser destroys punctuation, so "+11", "m+" and
+-- "11 key" can never match through the normal word list and need patterns.
+-- These only ADD the category, they do not touch Trade, because "wts +15" is a
+-- real thing.
+local function looksLikeMythicPlus(low)
+	return string.find(low,"mythic",1,true)~=nil
+		or string.find(low,"%+%s*%d+")~=nil          -- +11, + 11
+		or string.find(low,"%f[%w]m%s*%+")~=nil      -- m+, M +
+		or string.find(low,"%f[%w]%d+%s*keys?%f[%W]")~=nil  -- 11 key, 8 keys
+end
+
 local GetDungeons_orig=GBB.GetDungeons
 function GBB.GetDungeons(msg,name)
 	local dungeons,isGood,isBad,wordcount,isHeroic=GetDungeons_orig(msg,name)
-	if type(dungeons)=="table" and type(msg)=="string"
-		and string.find(string.lower(msg),"keystone",1,true) then
-		dungeons["TRADE"]=nil
-		dungeons["MPLUS"]=true
-		isGood=true
+	if type(dungeons)=="table" and type(msg)=="string" then
+		local low=string.lower(msg)
+		if hasKeystoneLink(low) then
+			dungeons["TRADE"]=nil
+			dungeons["MPLUS"]=true
+			isGood=true
+		elseif looksLikeMythicPlus(low) then
+			dungeons["MPLUS"]=true
+			isGood=true
+		end
 	end
 	return dungeons,isGood,isBad,wordcount,isHeroic
+end
+
+----------------------------------------------------------------------
+-- /gbbraw : print the next few channel lines exactly as the addon receives
+-- them, together with the categories they matched. Chat hyperlinks do not
+-- survive a screenshot in readable form, so the pipes are doubled, which the
+-- client renders as a single literal pipe.
+----------------------------------------------------------------------
+local rawLeft=0
+local rawFrame=CreateFrame("Frame")
+rawFrame:SetScript("OnEvent",function(self,event,msg,sender,_3,_4,_5,_6,_7,channelID,channelName)
+	if rawLeft<=0 or type(msg)~="string" then return end
+	rawLeft=rawLeft-1
+	local dungeons=GBB.GetDungeons(msg,sender)
+	local names={}
+	for key,hit in pairs(dungeons or {}) do
+		if hit then names[#names+1]=key end
+	end
+	table.sort(names)
+	print(GBB.MSGPREFIX.."raw ["..tostring(channelID).." "..tostring(channelName).."] "
+		..tostring(sender)..": "..string.gsub(msg,"|","||"))
+	print(GBB.MSGPREFIX.."    -> "..(#names>0 and table.concat(names,", ") or "no category"))
+	if rawLeft==0 then print(GBB.MSGPREFIX.."raw capture finished.") end
+end)
+GBB.Compat.SafeRegisterEvent(rawFrame,"CHAT_MSG_CHANNEL")
+
+SLASH_GBBRAW1="/gbbraw"
+SlashCmdList["GBBRAW"]=function(arg)
+	rawLeft=tonumber(arg) or 8
+	print(GBB.MSGPREFIX.."capturing the next "..rawLeft.." channel lines, unparsed.")
 end

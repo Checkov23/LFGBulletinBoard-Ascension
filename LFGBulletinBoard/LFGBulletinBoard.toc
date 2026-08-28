@@ -1,7 +1,7 @@
 ## Interface: 30300
 ## Title: LFG Bulletin Board
 ## Notes: Sort LFG/LFM Messages - based on LFG Bulletin Board 2.64, ported to the 3.3.5a client (Ascension)
-## Version: 1.03
+## Version: 1.04
 ## Author: Vyscî-Whitemane
 ## DefaultState: enabled
 ## SavedVariables: GroupBulletinBoardDB

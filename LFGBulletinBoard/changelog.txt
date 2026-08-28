@@ -2,6 +2,19 @@
 
 Group Bulletin Board 	
 
+1.04
+- Mythic+ recognition widened. A keystone link still wins outright; on top of
+  that "mythic", "+11", "M+" and "11 key" are now matched by pattern, because
+  the tokeniser destroys punctuation and those can never match as plain words.
+  Only a keystone link removes the Trade category, the looser patterns just add
+  Mythic+, so "WTS +15" stays a sale.
+- CoA category level ranges widened to 1-60. A narrow range only gave the level
+  filter a way to hide these categories from the people who want them.
+- New /gbbraw command. It prints the next channel lines exactly as the addon
+  receives them, pipes doubled so hyperlinks stay readable, together with the
+  categories each line matched. For working out why a specific line is not
+  picked up instead of guessing.
+
 1.03
 - Fixed the options panel crash introduced with the CoA categories. The
   localisation panel reads the English fallback name table behind
